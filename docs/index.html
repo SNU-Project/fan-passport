@@ -180,11 +180,23 @@
 
   <section>
     <h2><span class="n">05</span> 실제 EVM 위에서 돌려 보기</h2>
-    <div class="card">
+    <div class="card" style="margin-bottom:16px">
       <p style="margin-top:0">위 시뮬레이터와 같은 시나리오를, 진짜 Solidity 컨트랙트를 컴파일해 인메모리 이더리움에 배포한 채로 그대로 재현한 것이 저장소의 <code>npm run demo</code>다. 지갑도 테스트넷도 필요 없다.</p>
       <pre class="term" style="max-height:none"><span class="dim">$</span> git clone https://github.com/SNU-Project/fan-passport.git
 <span class="dim">$</span> cd fan-passport &amp;&amp; npm install
 <span class="dim">$</span> npm run demo</pre>
+    </div>
+    <div class="card">
+      <p style="margin-top:0;margin-bottom:0">
+        직접 실행하지 않아도 된다. 커밋할 때마다 <b style="color:var(--text)">GitHub 서버가 위 명령을 그대로 실행</b>해
+        컴파일 · 배포 · 22개 검증이 전부 실제로 통과하는지 재확인한다 — 이 페이지가 아니라 GitHub가 직접 증명하는 실행 기록이다.
+      </p>
+      <p style="margin:14px 0 0">
+        <a href="https://github.com/SNU-Project/fan-passport/actions/workflows/demo.yml" target="_blank">
+          <img src="https://github.com/SNU-Project/fan-passport/actions/workflows/demo.yml/badge.svg" alt="실제 EVM 데모 검증 상태" />
+        </a>
+      </p>
+      <p style="margin:10px 0 0"><a href="https://github.com/SNU-Project/fan-passport/actions/workflows/demo.yml" target="_blank">→ 최신 실행의 전체 로그 보기 (GitHub Actions)</a></p>
     </div>
   </section>
 

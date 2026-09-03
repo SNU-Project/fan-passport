@@ -1,9 +1,14 @@
 # 디지털 팬 여권 (Fan Passport)
 
+[![실제 EVM 데모 검증](https://github.com/SNU-Project/fan-passport/actions/workflows/demo.yml/badge.svg)](https://github.com/SNU-Project/fan-passport/actions/workflows/demo.yml)
+
 > 공연 티켓을 **돈이 아니라, 살 수 없는 화폐로 배분한다.**
 
 암표를 "단속"하는 대신, 암표가 성립할 수 없는 구조를 만드는 스마트컨트랙트 프로토타입입니다.
 블록체인 강의 기말 프로젝트 제안서([`docs/제안서.md`](docs/제안서.md))의 아이디어를 실제로 배포·실행되는 코드로 옮긴 것입니다.
+
+- 🖱️ **[클릭해서 실행해 보기](https://snu-project.github.io/fan-passport/)** — 브라우저에서 바로 눌러보는 인터랙티브 시뮬레이터
+- ✅ **[실제 컴파일·배포·실행 검증 로그](https://github.com/SNU-Project/fan-passport/actions/workflows/demo.yml)** — 커밋마다 GitHub 서버가 `solc`로 컴파일하고 인메모리 이더리움에 실제 배포해 22개 항목을 재검증한 기록. 위 배지를 눌러 최신 실행의 전체 로그를 볼 수 있다.
 
 ---
 

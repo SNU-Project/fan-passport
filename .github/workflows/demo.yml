@@ -1,0 +1,31 @@
+name: 실제 EVM 데모 검증
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch: {}
+
+jobs:
+  demo:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: 의존성 설치
+        run: npm install --no-audit --no-fund
+
+      - name: 컴파일 + 인메모리 이더리움 배포 + 9단계 시나리오 실행
+        run: npm run demo | tee demo_output.txt
+
+      - name: 22개 검증 항목 전부 통과했는지 확인
+        run: grep -q "통과 22 · 실패 0" demo_output.txt
+
+      - name: 실행 로그 아티팩트로 보관
+        uses: actions/upload-artifact@v4
+        with:
+          name: demo-transcript
+          path: demo_output.txt
