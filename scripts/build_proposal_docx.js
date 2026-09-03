@@ -11,6 +11,7 @@ const {
   Document, Packer, Paragraph, TextRun, HeadingLevel, AlignmentType,
   Table, TableRow, TableCell, WidthType, ShadingType,
   LevelFormat, convertInchesToTwip, PageBreak, PageNumber, Footer,
+  ExternalHyperlink, UnderlineType,
 } = require("docx");
 
 const FONT = "NanumMyeongjo";
@@ -91,6 +92,12 @@ const Caption = (text) =>
     spacing: { before: 40, after: 140 },
     alignment: AlignmentType.CENTER,
     children: [new TextRun({ text, italics: true, size: 15, font: FONT, color: "555555" })],
+  });
+
+const Link = (url, label) =>
+  new ExternalHyperlink({
+    link: url,
+    children: [T(label ?? url, { color: "1155CC", underline: { type: UnderlineType.SINGLE } })],
   });
 
 const Ref = (n, text) =>
@@ -239,7 +246,7 @@ body.push(
 body.push(new Paragraph({ children: [new PageBreak()] }));
 body.push(BareHeading("부록 A. 구현 상세"));
 body.push(
-  P("실제 구현은 두 개의 Solidity 스마트컨트랙트와 하나의 시연 스크립트로 이루어져 있으며, 코드 전문은 첨부 파일 및 깃허브 저장소로 함께 제출한다."),
+  P([T("실제 구현은 두 개의 Solidity 스마트컨트랙트와 하나의 시연 스크립트로 이루어져 있으며, 코드 전문은 첨부 파일로 함께 제출한다. ", {}), T("아래 링크에서 지갑·설치 없이 컨트랙트 로직이 브라우저에서 즉시 실행되는 것을 클릭 몇 번으로 확인할 수 있다: ", {}), Link("https://snu-project.github.io/fan-passport/", "인터랙티브 데모 바로가기"), T(" (소스: ", {}), Link("https://github.com/SNU-Project/fan-passport", "github.com/SNU-Project/fan-passport"), T(")", {})]),
   P([T("FanPassport.sol  ", { bold: true }), T("팔 수 없는 팬 여권을 구현한 계약이다. 한 사람에게 하나씩만 여권을 발급하고(issue), 실제 입장한 시점에만 기록을 남기며(stamp), 시간이 지날수록 선형으로 줄어드는 점수를 계산해 조회할 수 있게 했다(points). 적립된 점수와 이미 써버린 점수를 반드시 같은 속도로 함께 줄여야 하는데, 써버린 점수만 명목값으로 고정해 두면 시간이 지날수록 모든 팬의 점수가 0으로 수렴해 버리는 오류가 생긴다는 점을 구현 중 직접 확인하고 수정했다. 지갑 분실 시에는 발급기관이 본인 확인을 거쳐 기록 전체를 새 지갑으로 옮겨 줄 수 있게 했고(migrate), 전송·승인 등 양도 관련 함수는 모두 명시적으로 실패하도록 만들었다.")]),
   P([T("TicketBox.sol  ", { bold: true }), T("공연 한 건의 발권과 배분을 담당하는 계약이다. 우선권·일반 트랙으로 나누어 응모를 받고(enterDraw) 추첨을 확정하며(draw), 공식 반납 창구가 아니면 어떤 전송도 막는 transferFrom을 두었다. 표를 반납하면 정가와 보증금을 전액 돌려주고(returnTicket), 현장 검표 시 여권에 기록을 남기는 동시에 보증금을 돌려주며(checkIn), 무단 노쇼는 보증금을 몰수한다(closeNoShow).")]),
   P([T("scripts/demo.js  ", { bold: true }), T("인메모리 이더리움(ganache) 위에 두 계약을 실제로 배포하고, 팬 여섯 명과 암표상 역할의 시험 계정 한 명으로 부록 B의 아홉 단계 시나리오를 실행해 검증하는 스크립트다. "), T("npm install && npm run demo", { italics: true }), T(" 로 누구나 재현할 수 있으며, 커밋마다 GitHub Actions가 동일한 검증을 서버에서 재실행한다.")]),
