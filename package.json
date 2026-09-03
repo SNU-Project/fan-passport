@@ -1,0 +1,15 @@
+{
+  "name": "fan-passport",
+  "version": "1.0.0",
+  "description": "디지털 팬 여권 — 비양도성 참여 기록으로 공연 티켓을 배분하는 프로토콜",
+  "private": true,
+  "scripts": {
+    "demo": "node scripts/demo.js"
+  },
+  "dependencies": {
+    "docx": "^9.7.1",
+    "ethers": "^6.13.0",
+    "ganache": "^7.9.2",
+    "solc": "^0.8.26"
+  }
+}
