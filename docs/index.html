@@ -72,6 +72,17 @@
     padding: 22px; overflow-x: auto; font-family: "SF Mono", ui-monospace, Menlo, Consolas, monospace;
     font-size: 12.5px; line-height: 1.55; color: #d7f5da; max-height: 520px; overflow-y: auto;
   }
+
+  /* 버튼을 누르는 즉시 옆에서 상태가 바뀌는 걸 보게 — 오른쪽 패널을 스크롤에 고정한다 */
+  .demo-layout { display: grid; grid-template-columns: minmax(0, 1fr) 300px; gap: 18px; align-items: start; }
+  .demo-panel { position: sticky; top: 20px; }
+  .demo-panel table { font-size: 12.5px; }
+  .demo-panel th, .demo-panel td { padding: 7px 8px; }
+  .demo-panel pre.term { max-height: 260px; font-size: 11.5px; padding: 16px; }
+  @media (max-width: 760px) {
+    .demo-layout { grid-template-columns: 1fr; }
+    .demo-panel { order: -1; position: sticky; top: 8px; z-index: 5; }
+  }
   pre.term .ok { color: #4ade80; }
   pre.term .dim { color: #5b6474; }
 
@@ -154,28 +165,32 @@
       (진짜 이더리움 노드에 배포된 것은 아니다 — 지갑도 가스비도 필요 없는 브라우저 시뮬레이션이다. 실제 EVM 위에서 도는 모습은 5번 항목의 <code>npm run demo</code>로 확인할 수 있다.)
     </p>
 
-    <div class="card" style="margin-bottom:16px">
-      <table id="stateTable">
-        <tr><th>팬</th><th>여권</th><th>참석</th><th>점수</th><th>보유 티켓</th></tr>
-      </table>
+    <div class="demo-layout">
+      <div id="steps"></div>
+
+      <aside class="demo-panel">
+        <div class="card" style="margin-bottom:14px">
+          <table id="stateTable">
+            <tr><th>팬</th><th>여권</th><th>참석</th><th>점수</th><th>보유 티켓</th></tr>
+          </table>
+        </div>
+
+        <div class="card" style="margin-bottom:14px">
+          <table id="ticketTable">
+            <tr><th>좌석</th><th>상태</th><th>소유자</th></tr>
+          </table>
+        </div>
+
+        <pre class="term" id="log" style="margin:0 0 14px"></pre>
+
+        <div class="card">
+          <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap">
+            <span style="color:var(--muted);font-size:13px">막히면 처음부터.</span>
+            <button class="btn" id="resetBtn" style="cursor:pointer">🔄 다시</button>
+          </div>
+        </div>
+      </aside>
     </div>
-
-    <div class="card" style="margin-bottom:16px">
-      <table id="ticketTable">
-        <tr><th>좌석</th><th>상태</th><th>소유자</th></tr>
-      </table>
-    </div>
-
-    <div id="steps"></div>
-
-    <div class="card">
-      <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap">
-        <span style="color:var(--muted);font-size:13px">막힌다면 처음부터 다시 눌러볼 수 있다.</span>
-        <button class="btn" id="resetBtn" style="cursor:pointer">🔄 처음부터 다시</button>
-      </div>
-    </div>
-
-    <pre class="term" id="log" style="margin-top:16px"></pre>
   </section>
 
   <section>
