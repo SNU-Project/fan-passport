@@ -31,8 +31,9 @@ contract FanPassport {
     /* ─────────────────────────── 출석 기록 ─────────────────────────── */
 
     struct Stamp {
-        uint64 showId;   // 어떤 공연이었는지
-        uint64 time;     // 언제 입장했는지 (감가 계산의 기준점)
+        uint64  showId;   // 어떤 공연이었는지
+        uint64  time;     // 언제 확정됐는지 (감가 계산의 기준점)
+        uint128 amount;   // 확정된 리워드 (직접 입장 300, 양수인 200, 원구매자 100)
     }
 
     /// @notice 우선권 경매에서 소모한 점수. 적립분과 "동일한 속도로" 감가되어야 한다.
@@ -51,14 +52,14 @@ contract FanPassport {
     /// @notice 스탬프를 찍고 점수를 차감할 수 있는 주체(= 각 공연의 TicketBox 계약).
     mapping(address => bool) public authorized;
 
-    /// @notice 공연 1회 참석당 부여되는 점수.
-    uint256 public constant POINTS_PER_ATTENDANCE = 100;
+    /// @notice 직접 입장 시 확정되는 기본 리워드. 양도가 얽히면 TicketBox가 다른 값을 넘긴다.
+    uint256 public constant POINTS_DIRECT_ENTRY = 300;
 
     /// @notice 이 기간에 걸쳐 점수가 100% → 0% 로 선형 감소한다.
     uint256 public constant DECAY_PERIOD = 730 days; // 2년
 
     event PassportIssued(address indexed fan);
-    event Stamped(address indexed fan, uint64 indexed showId, uint64 time);
+    event Stamped(address indexed fan, uint64 indexed showId, uint64 time, uint256 amount);
     event PointsSpent(address indexed fan, uint256 amount);
     event PassportMigrated(address indexed from, address indexed to, uint256 stampCount);
 
@@ -121,12 +122,14 @@ contract FanPassport {
     /* ─────────────────────────── 기록·차감 ─────────────────────────── */
 
     /// @notice 실제 입장이 확인된 순간 호출된다. 예매가 아니라 "입장"만 점수가 된다.
-    function stamp(address fan, uint64 showId) external {
+    /// @dev    amount를 호출자가 정하는 이유: 직접 입장(300)과 공식 양도가 얽힌 경우
+    ///         (양수인 200 / 원구매자 100)의 확정액이 다르기 때문이다.
+    function stamp(address fan, uint64 showId, uint256 amount) external {
         if (!authorized[msg.sender]) revert NotAuthorized();
         if (!hasPassport[fan]) revert NoPassport();
 
-        _stamps[fan].push(Stamp({showId: showId, time: uint64(block.timestamp)}));
-        emit Stamped(fan, showId, uint64(block.timestamp));
+        _stamps[fan].push(Stamp({showId: showId, time: uint64(block.timestamp), amount: uint128(amount)}));
+        emit Stamped(fan, showId, uint64(block.timestamp), amount);
     }
 
     /// @notice 우선권 경매 입찰 시 점수를 소모시킨다(올페이: 낙찰 여부와 무관하게 소모).
@@ -146,7 +149,7 @@ contract FanPassport {
         Stamp[] storage s = _stamps[fan];
         uint256 gross = 0;
         for (uint256 i = 0; i < s.length; i++) {
-            gross += _decayed(POINTS_PER_ATTENDANCE, s[i].time);
+            gross += _decayed(s[i].amount, s[i].time);
         }
 
         Debit[] storage d = _debits[fan];
@@ -175,9 +178,9 @@ contract FanPassport {
         return _stamps[fan].length;
     }
 
-    function stampAt(address fan, uint256 i) external view returns (uint64 showId, uint64 time) {
+    function stampAt(address fan, uint256 i) external view returns (uint64 showId, uint64 time, uint256 amount) {
         Stamp storage s = _stamps[fan][i];
-        return (s.showId, s.time);
+        return (s.showId, s.time, s.amount);
     }
 
     /* ─────────────────── 소울바운드: 양도 경로의 부재 ─────────────────── */

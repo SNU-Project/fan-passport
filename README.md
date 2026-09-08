@@ -23,10 +23,10 @@ cd fan-passport && npm install
 npm run demo
 ```
 
-인메모리 이더리움에 두 계약을 실제로 배포해 9단계 시나리오·22개 항목을 검증한다.
+인메모리 이더리움에 세 계약을 실제로 배포해 27개 항목을 검증한다.
 같은 검증을 커밋마다 GitHub Actions가 서버에서 재실행한다 (위 배지 클릭 → 전체 로그).
 
 ## 더 보기
 
 - [제안서 (.docx)](docs/기말프로젝트_제안서.docx) — 왜 블록체인인가, 기존 시스템과의 비교
-- [contracts/](contracts) — FanPassport.sol, TicketBox.sol
+- [contracts/](contracts) — FanPassport.sol, TicketBox.sol, OfficialTransfer.sol

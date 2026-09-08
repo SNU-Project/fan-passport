@@ -23,6 +23,7 @@ const input = {
   sources: {
     'FanPassport.sol': { content: read('FanPassport.sol') },
     'TicketBox.sol':   { content: read('TicketBox.sol') },
+    'OfficialTransfer.sol': { content: read('OfficialTransfer.sol') },
   },
   settings: {
     optimizer: { enabled: true, runs: 200 },
@@ -38,6 +39,7 @@ if (errs.length) {
 }
 const PASSPORT = out.contracts['FanPassport.sol']['FanPassport'];
 const TICKETBOX = out.contracts['TicketBox.sol']['TicketBox'];
+const OFFICIAL  = out.contracts['OfficialTransfer.sol']['OfficialTransfer'];
 
 /* ─────────────────────────── 출력 도우미 ─────────────────────────── */
 
@@ -135,20 +137,26 @@ const fmt = (w) => Number(ethers.formatEther(w)).toFixed(3);
 
   const now = (await provider.getBlock('latest')).timestamp;
   const SHOW_TIME = now + 30 * 24 * 3600;
-  const FACE = ETH(0.1);      // 정가 (11만원 상당이라고 치자)
-  const DEP  = ETH(0.02);     // 노쇼 보증금
+  const FACE = ETH(0.1);      // 정가 (11만원 상당이라고 치자). 보증금은 두지 않는다.
   const CAP  = 4;             // 좌석 4석 (시연용 소극장)
 
   const bf = new ethers.ContractFactory(TICKETBOX.abi, TICKETBOX.evm.bytecode.object, promoter);
   const box = await bf.deploy(
-    await passport.getAddress(), 1, SHOW_TIME, FACE, DEP, CAP, gate.address
+    await passport.getAddress(), 1, SHOW_TIME, FACE, CAP, gate.address
   );
   await box.waitForDeployment();
   say('TicketBox 배포    ' + (await box.getAddress()));
-  say(`좌석 ${CAP}석 · 정가 ${fmt(FACE)}ETH · 보증금 ${fmt(DEP)}ETH`);
+  say(`좌석 ${CAP}석 · 정가 ${fmt(FACE)}ETH (보증금 없음, 무단 노쇼는 환불 불가)`);
 
   await (await passport.setAuthorized(await box.getAddress(), true)).wait();
-  IFACES.push(passport.interface, box.interface);
+
+  const of = new ethers.ContractFactory(OFFICIAL.abi, OFFICIAL.evm.bytecode.object, promoter);
+  const official = await of.deploy(await box.getAddress());
+  await official.waitForDeployment();
+  await (await box.connect(promoter).setOfficialTransfer(await official.getAddress())).wait();
+  say('OfficialTransfer 배포 ' + (await official.getAddress()));
+
+  IFACES.push(passport.interface, box.interface, official.interface);
 
   /* ── 여권 발급 + 과거 이력 ──────────────────────────────── */
 
@@ -163,7 +171,7 @@ const fmt = (w) => Number(ethers.formatEther(w)).toFixed(3);
   // 과거 공연 이력을 심는다. 실제로는 지난 공연들의 TicketBox가 찍은 스탬프다.
   await (await passport.setAuthorized(accts[0].address, true)).wait();
   const seed = async (f, k) => {
-    for (let i = 0; i < k; i++) await (await passport.stamp(f.address, 900 + i)).wait();
+    for (let i = 0; i < k; i++) await (await passport.stamp(f.address, 900 + i, 300)).wait();
   };
   await seed(jimin, 5);
   await seed(suhyun, 2);
@@ -225,10 +233,10 @@ const fmt = (w) => Number(ethers.formatEther(w)).toFixed(3);
   say('앞 2명은 점수 순, 뒤 2명은 추첨이다. 암표상도 추첨으로는 들어올 수 있다.');
 
   for (const f of [jimin, suhyun, haneul, scalper]) {
-    await (await box.connect(f).claim({ value: FACE + DEP })).wait();
+    await (await box.connect(f).claim({ value: FACE })).wait();
   }
   console.log();
-  ok(`4명 모두 정가 ${fmt(FACE)} + 보증금 ${fmt(DEP)} 지불 후 티켓 수령`);
+  ok(`4명 모두 정가 ${fmt(FACE)} 지불 후 티켓 수령`);
   for (let id = 1; id <= 4; id++) say(`  #${id} → ${nm(await box.ownerOf(id))}`);
 
   /* ── 암표 시도 ─────────────────────────────────────────── */
@@ -263,21 +271,52 @@ const fmt = (w) => Number(ethers.formatEther(w)).toFixed(3);
   say('  → 신분증과 소유자가 불일치. 입장 불가.');
   say('사후 적발이 아니라 사전 불가능이다. 단속률이 아니라 구조의 문제로 바뀐다.');
 
+  /* ── 공식 양도 ─────────────────────────────────────────── */
+
+  act('5', '공식 양도 — 예외를 규칙 안에서만 열어 준다');
+
+  say('막무가내 전송은 막혔지만, 정말 못 가게 된 사람이 넘길 길까지 막을 수는 없다.');
+  say('그래서 OfficialTransfer만이 소유자를 바꿀 수 있게 해 두었다.');
+  console.log();
+
+  await mustRevert(
+    official.connect(scalper).offer.staticCall(scalperTicket, buyerX.address, FACE * 5n),
+    'PriceAboveFaceValue', '암표상이 정가의 5배로 양도 등록'
+  );
+
+  await (await official.connect(scalper).offer(scalperTicket, buyerX.address, FACE)).wait();
+  ok('정가로는 양도 등록이 통과된다');
+
+  await mustRevert(
+    official.connect(haneul).accept.staticCall(scalperTicket, { value: FACE }),
+    'NotDesignatedBuyer', '지정되지 않은 사람이 수령 시도'
+  );
+  await mustRevert(
+    official.connect(buyerX).accept.staticCall(scalperTicket, { value: FACE / 2n }),
+    'WrongPayment', '구매자X가 절반만 지불'
+  );
+
+  console.log();
+  say('구매자X는 여권이 있으므로 정가를 내면 수령할 수 있다. 여기서는 양도하지 않고,');
+  say('암표상이 결국 반납을 택하는 쪽으로 시연을 이어 간다.');
+  await (await official.connect(scalper).cancel(scalperTicket)).wait();
+  ok('암표상이 양도 등록을 취소');
+
   /* ── 공식 반납 ─────────────────────────────────────────── */
 
-  act('5', '공식 반납 — 재판매의 순기능만 남기기');
+  act('6', '공식 반납 — 재판매의 순기능만 남기기');
 
   const rcpt = await (await box.connect(scalper).returnTicket(scalperTicket)).wait();
   const before = await provider.getBalance(scalper.address, rcpt.blockNumber - 1);
   const after  = await provider.getBalance(scalper.address, rcpt.blockNumber);
   const gas = rcpt.gasUsed * rcpt.gasPrice;
-  ok(`암표상이 티켓 #${scalperTicket} 반납 → 정가+보증금 전액 환불 (+${fmt(after - before + gas)}ETH)`);
+  ok(`암표상이 티켓 #${scalperTicket} 반납 → 정가 전액 환불 (+${fmt(after - before + gas)}ETH)`);
   say('차익이 0이므로 애초에 사재기할 이유가 없다.');
   say(`반납 대기 좌석: ${await box.returnPoolSize()}석`);
 
   /* ── 반납분 재배분 ─────────────────────────────────────── */
 
-  act('6', '반납분 재배분 — 돈이 아니라 점수로 경쟁한다');
+  act('7', '반납분 재배분 — 돈이 아니라 점수로 경쟁한다');
 
   await (await box.connect(promoter).openRound(1, 0)).wait();
   say('반납된 1석을 우선권 트랙으로 되돌린다.');
@@ -299,18 +338,18 @@ const fmt = (w) => Number(ethers.formatEther(w)).toFixed(3);
   await (await box.connect(promoter).draw()).wait();
   console.log();
   say('낙찰: ' + nm(await box.winners(0)));
-  await (await box.connect(yerin).claim({ value: FACE + DEP })).wait();
+  await (await box.connect(yerin).claim({ value: FACE })).wait();
   ok(`예린이 정가 그대로 티켓 수령 (웃돈 0원)`);
 
-  /* ── 입장과 보증금 ─────────────────────────────────────── */
+  /* ── 입장과 리워드 확정 ─────────────────────────────────── */
 
-  act('7', '공연 당일 — 입장해야만 기록이 쌓인다');
+  act('8', '공연 당일 — 입장해야만 기록이 쌓인다');
 
   for (const f of [jimin, suhyun, yerin]) {
     let id;
     for (let i = 1; i <= 4; i++) if ((await box.ownerOf(i)) === f.address) id = i;
     await (await box.connect(gate).checkIn(id)).wait();
-    ok(`${nm(f.address)} 입장 → 보증금 ${fmt(DEP)} 환급 + 여권 스탬프`);
+    ok(`${nm(f.address)} 입장 → 여권에 300점 확정`);
   }
   say('하늘은 오지 않았다 (무단 노쇼).');
 
@@ -321,12 +360,12 @@ const fmt = (w) => Number(ethers.formatEther(w)).toFixed(3);
   for (let i = 1; i <= 4; i++) if ((await box.ownerOf(i)) === haneul.address) haneulId = i;
   await (await box.connect(promoter).closeNoShow(haneulId)).wait();
   console.log();
-  ok(`하늘의 보증금 ${fmt(DEP)} 몰수 → 팬 리워드 풀 (현재 ${fmt(await box.rewardPool())}ETH)`);
+  ok(`하늘은 무단 노쇼 → 표값 ${fmt(FACE)}ETH 환불 불가로 마감`);
   say('반납에는 페널티가 없고 무단 노쇼만 손해다 → 빈 좌석 대신 반납을 유도한다.');
 
   /* ── 감가 ─────────────────────────────────────────────── */
 
-  act('8', '점수 감가 — 팬덤이 닫히지 않게');
+  act('9', '점수 감가 — 팬덤이 닫히지 않게');
 
   say(`현재  지민 ${await passport.points(jimin.address)}점 · 예린 ${await passport.points(yerin.address)}점`);
   await provider.send('evm_increaseTime', [365 * 24 * 3600]);
@@ -336,7 +375,7 @@ const fmt = (w) => Number(ethers.formatEther(w)).toFixed(3);
 
   /* ── 최종 ─────────────────────────────────────────────── */
 
-  act('9', '최종 상태');
+  act('10', '최종 상태');
 
   const label = ['', '보유중', '반납됨', '입장완료', '노쇼몰수'];
   for (let id = 1; id <= 4; id++) {

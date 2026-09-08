@@ -41,12 +41,15 @@ contract TicketBox {
     uint64  public immutable showId;
     uint64  public immutable showTime;
 
-    uint256 public immutable faceValue;  // 정가 (반납 시 전액 환불)
-    uint256 public immutable deposit;    // 노쇼 보증금 (입장 시 전액 환급)
+    uint256 public immutable faceValue;  // 정가 (반납 시 전액 환불, 무단 노쇼 시 환불 없음)
     uint256 public immutable capacity;   // 총 좌석 수
 
-    /// @notice 몰수된 보증금이 쌓이는 곳. 다음 회차 팬 리워드 재원으로 쓴다.
-    uint256 public rewardPool;
+    /// @notice 공식 양도를 대행하는 계약. 이 주소만 소유자를 바꿀 수 있다.
+    address public officialTransfer;
+
+    /// @notice 표를 처음 구매한 사람. 공식 양도로 소유자가 바뀌어도 남는다.
+    /// @dev    양수인이 입장했을 때 원구매자에게도 리워드를 확정하기 위해 필요하다.
+    mapping(uint256 => address) public originalBuyer;
 
     /* ─────────────────────────── 티켓 (제한된 NFT) ─────────────────────────── */
 
@@ -57,6 +60,11 @@ contract TicketBox {
         Used,       // 입장 완료
         Forfeited   // 무단 노쇼 (보증금 몰수)
     }
+
+    /// @notice 확정 리워드. 직접 입장 300, 양도 시 양수인 200 · 원구매자 100.
+    uint256 public constant REWARD_DIRECT = 300;
+    uint256 public constant REWARD_TRANSFEREE = 200;
+    uint256 public constant REWARD_ORIGINAL = 100;
 
     mapping(uint256 => address) public ownerOf;
     mapping(address => uint256) public balanceOf;
@@ -123,7 +131,6 @@ contract TicketBox {
         uint64  _showId,
         uint64  _showTime,
         uint256 _faceValue,
-        uint256 _deposit,
         uint256 _capacity,
         address _gate
     ) {
@@ -133,7 +140,6 @@ contract TicketBox {
         showId    = _showId;
         showTime  = _showTime;
         faceValue = _faceValue;
-        deposit   = _deposit;
         capacity  = _capacity;
     }
 
@@ -238,10 +244,11 @@ contract TicketBox {
     function claim() external payable returns (uint256 tokenId) {
         if (!drawn) revert NotDrawnYet();
         if (!isWinner[round][msg.sender]) revert NotWinner();
-        if (msg.value != faceValue + deposit) revert WrongPayment(msg.value, faceValue + deposit);
+        if (msg.value != faceValue) revert WrongPayment(msg.value, faceValue);
 
         isWinner[round][msg.sender] = false;   // 1회만
         tokenId = _issue(msg.sender);
+        originalBuyer[tokenId] = msg.sender;
         emit Claimed(round, msg.sender, tokenId);
     }
 
@@ -286,6 +293,30 @@ contract TicketBox {
         revert NonTransferable();
     }
 
+    /// @notice 공식 양도 대행 계약을 지정한다. 기획사만 한 번 설정할 수 있다.
+    function setOfficialTransfer(address addr) external onlyPromoter {
+        if (officialTransfer != address(0)) revert AlreadyDrawn();
+        officialTransfer = addr;
+    }
+
+    /// @notice 공식 양도. OfficialTransfer 계약만 호출할 수 있으며, 그 계약이
+    ///         본인확인·가격상한·수령 동의를 모두 확인한 뒤에만 여기까지 도달한다.
+    /// @dev    원구매자(originalBuyer)는 바뀌지 않는다. 검표 시 리워드를 나눠 주기 위해서다.
+    function officialTransferTo(uint256 tokenId, address to) external {
+        if (msg.sender != officialTransfer) revert NotOwner();
+        if (stateOf[tokenId] != TicketState.Held) revert BadState();
+        if (block.timestamp >= showTime) revert TooLate();
+        if (!passport.hasPassport(to)) revert NoPassport();
+        if (balanceOf[to] > 0) revert AlreadyHasTicket();
+
+        address from = ownerOf[tokenId];
+        ownerOf[tokenId] = to;
+        balanceOf[from] -= 1;
+        balanceOf[to]   += 1;
+
+        emit Transfer(from, to, tokenId);
+    }
+
     /* ═══════════════════════ 3. 반납 ═══════════════════════ */
 
     /// @notice 못 가게 됐을 때 정가와 보증금을 전액 돌려받고 좌석을 반환한다.
@@ -308,56 +339,55 @@ contract TicketBox {
 
         emit Transfer(holder, address(0), tokenId);
 
-        uint256 refund = faceValue + deposit;
-        (bool ok, ) = holder.call{value: refund}("");
+        (bool ok, ) = holder.call{value: faceValue}("");
         require(ok, "refund failed");
 
-        emit Returned(tokenId, holder, refund);
+        emit Returned(tokenId, holder, faceValue);
     }
 
-    /* ═══════════════════════ 4. 입장과 보증금 ═══════════════════════ */
+    /* ═══════════════════════ 4. 입장과 리워드 확정 ═══════════════════════ */
 
-    /// @notice 현장 검표. 이 순간에만 팬 여권에 스탬프가 찍힌다.
-    /// @dev    예매가 아니라 입장이 기록의 기준이다. 사재기로는 점수가 쌓이지 않는다.
+    /// @notice 현장 검표. 이 순간에만 팬 여권에 리워드가 확정된다.
+    /// @dev    예매가 아니라 입장이 기록의 기준이므로 사재기로는 점수가 쌓이지 않는다.
+    ///         공식 양도를 거친 표라면 양수인(200)과 원구매자(100)에게 나누어 확정한다.
+    ///         직접 입장(300)보다 총합은 같지만 원구매자 몫이 3분의 1로 줄어들기 때문에,
+    ///         미리 사 두었다가 넘기는 전략이 이득이 되지 않는다.
     function checkIn(uint256 tokenId) external {
         if (msg.sender != gate) revert NotGate();
         if (stateOf[tokenId] != TicketState.Held) revert BadState();
 
         address holder = ownerOf[tokenId];
+        address buyer  = originalBuyer[tokenId];
         stateOf[tokenId] = TicketState.Used;
 
-        passport.stamp(holder, showId);
-
-        (bool ok, ) = holder.call{value: deposit}("");
-        require(ok, "deposit refund failed");
+        if (holder == buyer) {
+            passport.stamp(holder, showId, REWARD_DIRECT);
+        } else {
+            passport.stamp(holder, showId, REWARD_TRANSFEREE);
+            passport.stamp(buyer,  showId, REWARD_ORIGINAL);
+        }
 
         emit CheckedIn(tokenId, holder);
     }
 
-    /// @notice 공연이 끝난 뒤, 반납도 입장도 하지 않은 좌석의 보증금을 몰수한다.
+    /// @notice 공연이 끝난 뒤, 반납도 입장도 하지 않은 좌석을 마감한다.
+    /// @dev    별도 보증금을 두지 않는다. 표값 자체가 담보이므로 무단 노쇼는 환불되지 않고,
+    ///         그 대금은 정산 시 기획사에 귀속된다.
     function closeNoShow(uint256 tokenId) external onlyPromoter {
         if (block.timestamp < showTime) revert TooEarly();
         if (stateOf[tokenId] != TicketState.Held) revert BadState();
 
         address holder = ownerOf[tokenId];
         stateOf[tokenId] = TicketState.Forfeited;
-        rewardPool += deposit;
 
-        emit NoShow(tokenId, holder, deposit);
+        emit NoShow(tokenId, holder, faceValue);
     }
 
-    /// @notice 정가 대금을 기획사에 정산한다.
+    /// @notice 공연 종료 후 남은 대금을 기획사에 정산한다.
     function settleRevenue() external onlyPromoter {
-        uint256 locked = _lockedDeposits();
-        uint256 amount = address(this).balance - locked - rewardPool;
-        (bool ok, ) = promoter.call{value: amount}("");
+        if (block.timestamp < showTime) revert TooEarly();
+        (bool ok, ) = promoter.call{value: address(this).balance}("");
         require(ok, "settle failed");
-    }
-
-    function _lockedDeposits() private view returns (uint256 total) {
-        for (uint256 i = 1; i <= minted; i++) {
-            if (stateOf[i] == TicketState.Held) total += deposit;
-        }
     }
 
     /* ═══════════════════════ 조회용 ═══════════════════════ */
