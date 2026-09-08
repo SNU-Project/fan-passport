@@ -56,7 +56,7 @@ contract FanPassport {
     uint256 public constant POINTS_DIRECT_ENTRY = 300;
 
     /// @notice 이 기간에 걸쳐 점수가 100% → 0% 로 선형 감소한다.
-    uint256 public constant DECAY_PERIOD = 730 days; // 2년
+    uint256 public constant DECAY_PERIOD = 1825 days; // 5년
 
     event PassportIssued(address indexed fan);
     event Stamped(address indexed fan, uint64 indexed showId, uint64 time, uint256 amount);
