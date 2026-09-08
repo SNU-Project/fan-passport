@@ -59,9 +59,10 @@ const Bullet = (children) =>
     children: Array.isArray(children) ? children : [T(children)],
   });
 
-const NumItem = (children) =>
+/** 번호 목록. 같은 reference를 공유하면 번호가 이어지므로 목록마다 다른 ref를 준다. */
+const NumItem = (children, ref = "numbered") =>
   new Paragraph({
-    numbering: { reference: "numbered", level: 0 },
+    numbering: { reference: ref, level: 0 },
     spacing: { after: 40, line: 232 },
     children: Array.isArray(children) ? children : [T(children)],
   });
@@ -83,7 +84,11 @@ function table(widths, rows) {
   return new Table({
     width: { size: total, type: WidthType.DXA },
     columnWidths: widths,
-    rows: rows.map((r, i) => new TableRow({ children: r.map((c, j) => cell(c, { width: widths[j], head: i === 0 })) })),
+    // cantSplit: 행이 페이지 경계에서 반쪽으로 잘리지 않도록 통째로 넘긴다.
+    rows: rows.map((r, i) => new TableRow({
+      cantSplit: true,
+      children: r.map((c, j) => cell(c, { width: widths[j], head: i === 0 })),
+    })),
   });
 }
 
@@ -142,7 +147,25 @@ body.push(
 body.push(H1(3, "시스템 설계"));
 body.push(
   P("설계 초기의 두 방향 — 이력의 자기소유·증명, 그리고 양도 제한형 반납·재판매 — 은 각각 빈틈이 있다. 후자는 반납 표의 재배분 기준이 없어 선착순 운영 시 매크로 경쟁이 재현되고, 전자는 이력의 용도가 굿즈 선구매 수준에 머물러 암표 문제와 직결되지 않는다. 본 설계는 전자의 '양도 불가능한 이력'을 후자의 '반납 표 배분 기준'으로 사용해 두 빈틈을 상호 보완한다."),
-  P("시스템은 두 계약으로 구성된다. 팬 1인당 발급되는 팬 여권(FanPassport)은 전송·승인이 항상 실패하는 소울바운드 토큰으로, 실제 입장 시점에만 기록되고 점수는 2년에 걸쳐 선형 감가한다(신규 팬 진입 여지 확보). 공연별로 배포되는 티켓함(TicketBox)의 표는 공식 반납 창구로만 전송되며, 좌석은 팬 점수 올페이 경매인 우선권 트랙과 무작위 추첨인 일반 트랙으로 배분한다. 반납은 정가 전액 환불 후 다음 라운드 우선권 트랙으로 재편입되고, 보증금은 입장·반납 시 환급되며 무단 노쇼에만 몰수돼 리워드 재원이 된다. 누적 참석 횟수는 계약 없이 제3자가 조회 가능해, 등급별 혜택 활용도 실현된다."),
+);
+
+body.push(H2(1, "구성 요소"));
+body.push(
+  P([T("팬 여권(FanPassport)", { bold: true }), T("은 팬 1인당 하나씩 발급되어 아티스트·예매처와 무관하게 평생 공용으로 쓰이는 계약이다. 발급기관이 오프체인 실명 확인을 마친 사람에게만 발급하며, 전송·승인 함수는 호출 시 항상 실패한다. "), T("티켓함(TicketBox)", { bold: true }), T("은 공연 한 건마다 새로 배포되어 그 공연의 좌석 배분·발권·검표를 담당한다. 모든 티켓함이 동일한 팬 여권을 참조하므로, 어느 공연에서 쌓은 이력이든 하나의 여권에 누적된다. 참여 주체는 발급기관(실명 확인), 기획사(라운드 개설·정산), 현장 검표 단말, 그리고 팬이다.")]),
+);
+
+body.push(H2(2, "공연 한 건의 진행 흐름"));
+body.push(
+  NumItem([T("라운드 개설. ", { bold: true }), T("기획사가 좌석을 우선권 N석·일반 M석으로 나누어 응모를 연다.")], "flow"),
+  NumItem([T("응모. ", { bold: true }), T("팬은 여권 점수를 걸어 입찰하거나(우선권 트랙), 0점으로 응모한다(추첨 트랙). 입찰 점수는 낙찰 여부와 무관하게 이 시점에 즉시 차감된다(올페이). 여권이 없거나 이미 표를 보유한 계정, 같은 라운드에 두 번 응모하는 계정은 거부된다.")], "flow"),
+  NumItem([T("배정. ", { bold: true }), T("우선권 좌석은 입찰 점수 상위순으로, 일반 좌석은 남은 응모자 중 무작위로 확정된다. 당첨자는 정가와 보증금을 함께 지불하고 표를 수령한다.")], "flow"),
+  NumItem([T("반납·재배분. ", { bold: true }), T("사정이 생긴 보유자는 정가와 보증금을 전액 환불받고 좌석을 반납한다. 반납분은 다음 라운드의 우선권 트랙으로 재편입되어 같은 절차를 다시 거친다.")], "flow"),
+  NumItem([T("입장·정산. ", { bold: true }), T("검표 단말이 표를 확인하면 그 순간 여권에 참여 기록이 남고 보증금이 환급된다. 반납도 입장도 하지 않은 좌석은 공연 종료 후 보증금이 몰수되어 다음 회차 리워드 재원이 된다.")], "flow"),
+);
+
+body.push(H2(3, "양도가 차단되는 지점과 점수 설계"));
+body.push(
+  P("표의 전송 함수는 수신자가 티켓함 자신일 때만 통과하고 그 외에는 모두 실패하므로, 실질적으로 모든 이전 경로가 공식 반납 하나로 수렴한다. 현금이 오갔더라도 온체인 소유자가 바뀌지 않아 검표 단계에서 신분과 소유자가 불일치하게 된다. 점수는 입장 1회당 정액으로 적립되고 2년에 걸쳐 선형 감가하는데, 이때 적립분과 이미 소모한 점수를 반드시 같은 속도로 감가시켜야 한다(구현 검증 중 확인한 사항으로, 소모분만 명목값으로 고정하면 시간이 지날수록 모든 팬의 점수가 0으로 수렴한다). 한편 누적 참석 횟수는 별도 연동 계약 없이 제3자가 조회할 수 있는 공개 값이므로, 굿즈 선구매권 같은 등급별 혜택도 같은 여권 위에서 함께 구현된다."),
 );
 
 // 제4장 블록체인 도입의 필요성 (채점 배점 항목 — 두껍게 유지) --------------------
@@ -170,7 +193,7 @@ body.push(
 
 body.push(
   table(
-    [2400, 800, 5900],
+    [2750, 800, 5550],
     [
       ["필요한 것", "중앙 DB", "왜 안 되는가"],
       ["경쟁 예매처 간 이력 통합", "불가능", "한 회사가 DB를 관리해야 하고, 경쟁사는 그 회사 서버를 무조건 신뢰해야 한다."],
@@ -280,6 +303,7 @@ const doc = new Document({
     config: [
       { reference: "bullets", levels: [{ level: 0, format: LevelFormat.BULLET, text: "•", alignment: AlignmentType.LEFT, style: { paragraph: { indent: { left: 640, hanging: 320 } } } }] },
       { reference: "numbered", levels: [{ level: 0, format: LevelFormat.DECIMAL, text: "%1.", alignment: AlignmentType.LEFT, style: { paragraph: { indent: { left: 640, hanging: 320 } } } }] },
+      { reference: "flow", levels: [{ level: 0, format: LevelFormat.DECIMAL, text: "%1.", alignment: AlignmentType.LEFT, style: { paragraph: { indent: { left: 640, hanging: 320 } } } }] },
     ],
   },
   styles: {
