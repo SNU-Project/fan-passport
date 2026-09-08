@@ -26,8 +26,8 @@
     font-family: "Pretendard", "Apple SD Gothic Neo", "Malgun Gothic", -apple-system, BlinkMacSystemFont, sans-serif;
     line-height: 1.7;
   }
-  .wrap { max-width: 880px; margin: 0 auto; padding: 40px 24px 80px; }
-  header.hero { text-align: center; margin-bottom: 40px; }
+  .wrap { max-width: 880px; margin: 0 auto; padding: 36px 24px 60px; }
+  header.hero { text-align: center; margin-bottom: 28px; }
   .kicker {
     display: inline-block; font-size: 13px; letter-spacing: 0.08em; color: var(--accent);
     border: 1px solid rgba(125,211,252,0.35); border-radius: 999px; padding: 4px 14px; margin-bottom: 20px;
@@ -43,10 +43,13 @@
   .btn:hover { transform: translateY(-1px); border-color: var(--accent); }
   .btn.primary { background: linear-gradient(135deg, var(--accent), var(--accent2)); color: #0b0d12; border: none; }
 
-  section { margin-bottom: 56px; }
+  section { margin-bottom: 32px; }
   h2 { font-size: 22px; margin: 0 0 18px; display: flex; align-items: center; gap: 10px; }
   h2 .n { color: var(--accent); font-variant-numeric: tabular-nums; }
 
+  .note { color: var(--muted); font-size: 14px; margin: 0 0 18px; }
+  .proof { display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+           color: var(--muted); font-size: 13px; border-top: 1px solid var(--border); padding-top: 20px; }
   .card { background: var(--panel); border: 1px solid var(--border); border-radius: 16px; padding: 24px 26px; }
   .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
   @media (max-width: 720px) { .grid2 { grid-template-columns: 1fr; } }
@@ -97,25 +100,17 @@
 <div class="wrap">
 
   <header class="hero">
-    <div class="kicker">SNU · 블록체인 기말 프로젝트</div>
     <h1>디지털 팬 여권</h1>
-    <p class="sub">콘서트 표를 돈이 아니라 <b>살 수 없는 참여 기록</b>으로 나눠, 암표가 성립할 수 없게 만드는 스마트컨트랙트.</p>
+    <p class="sub">암표가 성립할 수 없게 만드는 티켓 스마트컨트랙트. 아래 버튼을 눌러 보세요.</p>
     <div class="links">
-      <a class="btn primary" href="https://github.com/SNU-Project/fan-passport" target="_blank">GitHub 저장소</a>
-      <a class="btn" href="https://github.com/SNU-Project/fan-passport/blob/main/docs/기말프로젝트_제안서.docx" target="_blank">제안서 (.docx)</a>
-      <a class="btn" href="https://github.com/SNU-Project/fan-passport/blob/main/contracts/FanPassport.sol" target="_blank">스마트컨트랙트</a>
+      <a class="btn" href="https://github.com/SNU-Project/fan-passport" target="_blank">GitHub</a>
+      <a class="btn" href="https://github.com/SNU-Project/fan-passport/blob/main/docs/기말프로젝트_제안서.pdf" target="_blank">제안서</a>
     </div>
   </header>
 
   <section>
-    <h2>직접 눌러서 실행해 보기</h2>
-    <p style="color:var(--muted);margin-top:-8px">
-      버튼을 누르면 저장소의
-      <a href="https://github.com/SNU-Project/fan-passport/blob/main/contracts/FanPassport.sol">FanPassport.sol</a> ·
-      <a href="https://github.com/SNU-Project/fan-passport/blob/main/contracts/TicketBox.sol">TicketBox.sol</a>
-      과 <b style="color:var(--text)">동일한 조건문(require/revert)</b>이 그 자리에서 실행되고, 오른쪽 상태표와 로그가 즉시 바뀐다.
-      설치도 지갑도 필요 없다. (브라우저 시뮬레이션이며, 진짜 EVM 위에서 도는 모습은 아래에서 확인할 수 있다.)
-    </p>
+    <p class="note">저장소의 <a href="https://github.com/SNU-Project/fan-passport/blob/main/contracts/FanPassport.sol">FanPassport.sol</a> ·
+      <a href="https://github.com/SNU-Project/fan-passport/blob/main/contracts/TicketBox.sol">TicketBox.sol</a>과 같은 규칙이 브라우저에서 그대로 실행됩니다. 설치·지갑 불필요.</p>
 
     <div class="demo-layout">
       <div id="steps"></div>
@@ -145,30 +140,15 @@
     </div>
   </section>
 
-  <section>
-    <h2>진짜 EVM 위에서 돌아간다는 증거</h2>
-    <div class="card" style="margin-bottom:16px">
-      <p style="margin-top:0">위 시뮬레이터와 같은 시나리오를, 진짜 Solidity 컨트랙트를 컴파일해 인메모리 이더리움에 배포한 채로 그대로 재현한 것이 저장소의 <code>npm run demo</code>다. 지갑도 테스트넷도 필요 없다.</p>
-      <pre class="term" style="max-height:none"><span class="dim">$</span> git clone https://github.com/SNU-Project/fan-passport.git
-<span class="dim">$</span> cd fan-passport &amp;&amp; npm install
-<span class="dim">$</span> npm run demo</pre>
-    </div>
-    <div class="card">
-      <p style="margin-top:0;margin-bottom:0">
-        직접 실행하지 않아도 된다. 커밋할 때마다 <b style="color:var(--text)">GitHub 서버가 위 명령을 그대로 실행</b>해
-        컴파일 · 배포 · 22개 검증이 전부 실제로 통과하는지 재확인한다 — 이 페이지가 아니라 GitHub가 직접 증명하는 실행 기록이다.
-      </p>
-      <p style="margin:14px 0 0">
-        <a href="https://github.com/SNU-Project/fan-passport/actions/workflows/demo.yml" target="_blank">
-          <img src="https://github.com/SNU-Project/fan-passport/actions/workflows/demo.yml/badge.svg" alt="실제 EVM 데모 검증 상태" />
-        </a>
-      </p>
-      <p style="margin:10px 0 0"><a href="https://github.com/SNU-Project/fan-passport/actions/workflows/demo.yml" target="_blank">→ 최신 실행의 전체 로그 보기 (GitHub Actions)</a></p>
-    </div>
+  <section class="proof">
+    <a href="https://github.com/SNU-Project/fan-passport/actions/workflows/demo.yml" target="_blank">
+      <img src="https://github.com/SNU-Project/fan-passport/actions/workflows/demo.yml/badge.svg" alt="EVM 데모 검증" />
+    </a>
+    <span>커밋마다 GitHub가 실제로 컴파일·배포해 22개 항목을 검증합니다 — <a href="https://github.com/SNU-Project/fan-passport/actions/workflows/demo.yml" target="_blank">실행 로그</a></span>
   </section>
 
   <footer>
-    <p>디지털 팬 여권 — 블록체인 기말 프로젝트 · <a href="https://github.com/SNU-Project/fan-passport">GitHub</a></p>
+    <p>SNU 블록체인 기말 프로젝트</p>
   </footer>
 
 </div>
