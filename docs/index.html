@@ -16,7 +16,7 @@
     --accent2: #f472b6;
     --good: #4ade80;
     --bad: #fb7185;
-    font-size: 16px;
+    font-size: 17px;
   }
   * { box-sizing: border-box; }
   body {
@@ -26,18 +26,18 @@
     font-family: "Pretendard", "Apple SD Gothic Neo", "Malgun Gothic", -apple-system, BlinkMacSystemFont, sans-serif;
     line-height: 1.7;
   }
-  .wrap { max-width: 1480px; margin: 0 auto; padding: 40px 32px 60px; }
-  header.hero { text-align: center; margin-bottom: 28px; }
+  .wrap { max-width: 1900px; margin: 0 auto; padding: 32px 40px 60px; }
+  header.hero { text-align: center; margin-bottom: 24px; }
   .kicker {
     display: inline-block; font-size: 13px; letter-spacing: 0.08em; color: var(--accent);
     border: 1px solid rgba(125,211,252,0.35); border-radius: 999px; padding: 4px 14px; margin-bottom: 20px;
   }
-  h1 { font-size: 38px; margin: 0 0 12px; letter-spacing: -0.02em; }
+  h1 { font-size: 34px; margin: 0 0 10px; letter-spacing: -0.02em; }
   .sub { color: var(--muted); font-size: 18px; max-width: 680px; margin: 0 auto; }
-  .links { margin-top: 28px; display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+  .links { margin-top: 20px; display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
   .btn {
-    display: inline-flex; align-items: center; gap: 8px; padding: 13px 22px; border-radius: 11px;
-    text-decoration: none; font-weight: 600; font-size: 15px; border: 1px solid var(--border);
+    display: inline-flex; align-items: center; gap: 8px; padding: 15px 26px; border-radius: 12px;
+    text-decoration: none; font-weight: 600; font-size: 17px; border: 1px solid var(--border);
     color: var(--text); background: var(--panel2); transition: transform .15s, border-color .15s;
   }
   .btn:hover { transform: translateY(-1px); border-color: var(--accent); }
@@ -47,10 +47,10 @@
   h2 { font-size: 22px; margin: 0 0 18px; display: flex; align-items: center; gap: 10px; }
   h2 .n { color: var(--accent); font-variant-numeric: tabular-nums; }
 
-  .note { color: var(--muted); font-size: 15px; margin: 0 auto 24px; max-width: 900px; text-align: center; }
+  .note { color: var(--muted); font-size: 16px; margin: 0 auto 28px; max-width: 960px; text-align: center; }
   .proof { display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
            color: var(--muted); font-size: 13px; border-top: 1px solid var(--border); padding-top: 20px; }
-  .card { background: var(--panel); border: 1px solid var(--border); border-radius: 18px; padding: 28px 30px; }
+  .card { background: var(--panel); border: 1px solid var(--border); border-radius: 18px; padding: 32px 36px; }
   .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
   @media (max-width: 720px) { .grid2 { grid-template-columns: 1fr; } }
 
@@ -64,28 +64,29 @@
   .step .body b { color: var(--text); }
   .step .body span { color: var(--muted); font-size: 14px; }
 
-  table { width: 100%; border-collapse: collapse; font-size: 15px; }
-  th, td { text-align: left; padding: 12px 14px; border-bottom: 1px solid var(--border); vertical-align: middle; }
-  th { color: var(--muted); font-weight: 600; font-size: 14px; }
+  table { width: 100%; border-collapse: collapse; font-size: 17px; }
+  th, td { text-align: left; padding: 15px 16px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+  th { color: var(--muted); font-weight: 600; font-size: 15px; }
   td.bad { color: var(--bad); }
   td.good { color: var(--good); }
 
   pre.term {
     background: #05070a; border: 1px solid var(--border); border-radius: 14px;
     padding: 22px; overflow-x: auto; font-family: "SF Mono", ui-monospace, Menlo, Consolas, monospace;
-    font-size: 14px; line-height: 1.6; color: #d7f5da; max-height: 520px; overflow-y: auto;
+    font-size: 15.5px; line-height: 1.65; color: #d7f5da; max-height: 560px; overflow-y: auto;
   }
 
   /* 버튼을 누르는 즉시 옆에서 상태가 바뀌는 걸 보게 — 오른쪽 패널을 스크롤에 고정한다 */
-  .demo-layout { display: grid; grid-template-columns: minmax(0, 1fr) 460px; gap: 26px; align-items: start; }
+  .demo-layout { display: grid; grid-template-columns: minmax(0, 1fr) 600px; gap: 32px; align-items: start; }
   .demo-panel { position: sticky; top: 24px; }
-  .demo-panel table { font-size: 15px; }
-  .demo-panel th, .demo-panel td { padding: 11px 12px; }
-  .demo-panel pre.term { max-height: 340px; font-size: 13.5px; padding: 20px; }
-  @media (max-width: 1180px) {
-    .demo-layout { grid-template-columns: minmax(0, 1fr) 380px; gap: 20px; }
-    .demo-panel table { font-size: 13.5px; }
-    .demo-panel th, .demo-panel td { padding: 9px 10px; }
+  .demo-panel table { font-size: 17px; }
+  .demo-panel th, .demo-panel td { padding: 14px 14px; }
+  .demo-panel pre.term { max-height: 420px; font-size: 15px; padding: 24px; }
+  @media (max-width: 1500px) {
+    .demo-layout { grid-template-columns: minmax(0, 1fr) 480px; gap: 24px; }
+    .demo-panel table { font-size: 15px; }
+    .demo-panel th, .demo-panel td { padding: 11px 12px; }
+    .demo-panel pre.term { font-size: 13.5px; max-height: 340px; }
   }
   @media (max-width: 900px) {
     .demo-layout { grid-template-columns: 1fr; }
@@ -94,7 +95,7 @@
   pre.term .ok { color: #4ade80; }
   pre.term .dim { color: #5b6474; }
 
-  .pill { display: inline-block; font-size: 13px; padding: 4px 11px; border-radius: 999px; background: var(--panel2); border: 1px solid var(--border); color: var(--muted); margin-right: 6px; }
+  .pill { display: inline-block; font-size: 14px; padding: 5px 12px; border-radius: 999px; background: var(--panel2); border: 1px solid var(--border); color: var(--muted); margin-right: 6px; }
 
   footer { text-align: center; color: var(--muted); font-size: 13px; margin-top: 80px; }
   footer a { color: var(--accent); }
@@ -318,24 +319,24 @@
   /* \u2500\u2500 \ub2e8\uacc4\ubcc4 UI \u2500\u2500 */
   const steps = document.getElementById("steps");
   steps.innerHTML = `
-    <div class="card" style="margin-bottom:16px">
-      <h2 style="font-size:19px;margin-top:0"><span class="n">Step 1</span> \uc774\ub825 \uc790\uccb4\ub97c \ud314\uc544 \ubcf4\ub824\ub294 \uc2dc\ub3c4</h2>
-      <p style="color:var(--muted);margin:10px 0 18px;font-size:15px">\uc554\ud45c\uc0c1\uc774 \uc790\uae30 \ud32c \uc5ec\uad8c(\ucc38\uc5ec \uc774\ub825)\uc744 \ub2e4\ub978 \uc0ac\ub78c\uc5d0\uac8c \ud314\uac70\ub098 \ub118\uae30\ub824 \ud55c\ub2e4.</p>
+    <div class="card" style="margin-bottom:22px">
+      <h2 style="font-size:23px;margin-top:0"><span class="n">Step 1</span> \uc774\ub825 \uc790\uccb4\ub97c \ud314\uc544 \ubcf4\ub824\ub294 \uc2dc\ub3c4</h2>
+      <p style="color:var(--muted);margin:12px 0 22px;font-size:17px">\uc554\ud45c\uc0c1\uc774 \uc790\uae30 \ud32c \uc5ec\uad8c(\ucc38\uc5ec \uc774\ub825)\uc744 \ub2e4\ub978 \uc0ac\ub78c\uc5d0\uac8c \ud314\uac70\ub098 \ub118\uae30\ub824 \ud55c\ub2e4.</p>
       <button class="btn" data-act="sellPassport">\uc554\ud45c\uc0c1\uc758 \uc5ec\uad8c\uc744 \uad6c\ub9e4\uc790X\uc5d0\uac8c \ud314\uc544\ubcf4\uae30</button>
     </div>
 
-    <div class="card" style="margin-bottom:16px">
-      <h2 style="font-size:19px;margin-top:0"><span class="n">Step 2</span> 1\ucc28 \ubc30\uc815 \u2014 \uc6b0\uc120\uad8c 2\uc11d(\uc810\uc218 \uacbd\ub9e4) + \uc77c\ubc18 2\uc11d(\ucd94\ucca8)</h2>
-      <p style="color:var(--muted);margin:10px 0 18px;font-size:15px">\uc88c\uc11d\uc744 \uc5f4\uace0, \uac01\uc790 \uc6d0\ud558\ub294 \ub9cc\ud07c \uc810\uc218\ub97c \uac78\uc5b4 \uc751\ubaa8\ud55c\ub2e4. \uc751\ubaa8\ud55c \uc810\uc218\ub294 \ub5a8\uc5b4\uc838\ub3c4 \ub3cc\uc544\uc624\uc9c0 \uc54a\ub294\ub2e4.</p>
-      <button class="btn" data-act="openRound1" style="margin-bottom:10px">\ubc30\uc815 \ub77c\uc6b4\ub4dc \uc5f4\uae30 (\uc6b0\uc120\uad8c 2 \u00b7 \uc77c\ubc18 2)</button>
-      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px">
+    <div class="card" style="margin-bottom:22px">
+      <h2 style="font-size:23px;margin-top:0"><span class="n">Step 2</span> 1\ucc28 \ubc30\uc815 \u2014 \uc6b0\uc120\uad8c 2\uc11d(\uc810\uc218 \uacbd\ub9e4) + \uc77c\ubc18 2\uc11d(\ucd94\ucca8)</h2>
+      <p style="color:var(--muted);margin:12px 0 22px;font-size:17px">\uc88c\uc11d\uc744 \uc5f4\uace0, \uac01\uc790 \uc6d0\ud558\ub294 \ub9cc\ud07c \uc810\uc218\ub97c \uac78\uc5b4 \uc751\ubaa8\ud55c\ub2e4. \uc751\ubaa8\ud55c \uc810\uc218\ub294 \ub5a8\uc5b4\uc838\ub3c4 \ub3cc\uc544\uc624\uc9c0 \uc54a\ub294\ub2e4.</p>
+      <button class="btn" data-act="openRound1" style="margin-bottom:14px">\ubc30\uc815 \ub77c\uc6b4\ub4dc \uc5f4\uae30 (\uc6b0\uc120\uad8c 2 \u00b7 \uc77c\ubc18 2)</button>
+      <div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:10px">
         <button class="btn" data-act="enter" data-fan="jimin" data-bid="900">\uc9c0\ubbfc, 900\uc810\uc73c\ub85c \uc751\ubaa8</button>
         <button class="btn" data-act="enter" data-fan="suhyun" data-bid="450">\uc218\ud604, 450\uc810\uc73c\ub85c \uc751\ubaa8</button>
         <button class="btn" data-act="enter" data-fan="haneul" data-bid="0">\ud558\ub298, 0\uc810(\ucd94\ucca8\ub9cc) \uc751\ubaa8</button>
         <button class="btn" data-act="enter" data-fan="scalper" data-bid="0">\uc554\ud45c\uc0c1, 0\uc810(\ucd94\ucca8\ub9cc) \uc751\ubaa8</button>
       </div>
-      <button class="btn" data-act="draw1" style="margin-bottom:10px">\ucd94\ucca8 \ud655\uc815\ud558\uae30</button>
-      <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <button class="btn" data-act="draw1" style="margin-bottom:14px">\ucd94\ucca8 \ud655\uc815\ud558\uae30</button>
+      <div style="display:flex;gap:12px;flex-wrap:wrap">
         <button class="btn" data-act="claim" data-fan="jimin">\uc9c0\ubbfc \ubc1c\uad8c</button>
         <button class="btn" data-act="claim" data-fan="suhyun">\uc218\ud604 \ubc1c\uad8c</button>
         <button class="btn" data-act="claim" data-fan="haneul">\ud558\ub298 \ubc1c\uad8c</button>
@@ -343,43 +344,43 @@
       </div>
     </div>
 
-    <div class="card" style="margin-bottom:16px">
-      <h2 style="font-size:19px;margin-top:0"><span class="n">Step 3</span> \uc554\ud45c \uc2dc\ub3c4 \u2014 \uc5ec\uae30\uac00 \ud575\uc2ec</h2>
-      <p style="color:var(--muted);margin:10px 0 18px;font-size:15px">\uc554\ud45c\uc0c1\uc774 \ubc1c\uad8c\ubc1b\uc740 \ud2f0\ucf13\uc744 \uad6c\ub9e4\uc790X\uc5d0\uac8c \uc6c3\ub3c8\uc744 \ubc1b\uace0 \ub118\uae30\ub824 \ud55c\ub2e4.</p>
+    <div class="card" style="margin-bottom:22px">
+      <h2 style="font-size:23px;margin-top:0"><span class="n">Step 3</span> \uc554\ud45c \uc2dc\ub3c4 \u2014 \uc5ec\uae30\uac00 \ud575\uc2ec</h2>
+      <p style="color:var(--muted);margin:12px 0 22px;font-size:17px">\uc554\ud45c\uc0c1\uc774 \ubc1c\uad8c\ubc1b\uc740 \ud2f0\ucf13\uc744 \uad6c\ub9e4\uc790X\uc5d0\uac8c \uc6c3\ub3c8\uc744 \ubc1b\uace0 \ub118\uae30\ub824 \ud55c\ub2e4.</p>
       <button class="btn" data-act="sellTicket">\uc554\ud45c\uc0c1 \u2192 \uad6c\ub9e4\uc790X \ud2f0\ucf13 \uc804\uc1a1 \uc2dc\ub3c4</button>
     </div>
 
-    <div class="card" style="margin-bottom:16px">
-      <h2 style="font-size:19px;margin-top:0"><span class="n">Step 4</span> \uacf5\uc2dd \ubc18\ub0a9\uacfc \uc7ac\ubc30\uc815</h2>
-      <p style="color:var(--muted);margin:10px 0 18px;font-size:15px">\ub418\ud314\uc9c0 \ubabb\ud55c \uc554\ud45c\uc0c1\uc774 \uc815\uac00 \uadf8\ub300\ub85c \ubc18\ub0a9\ud558\uba74, \uadf8 \uc88c\uc11d\uc740 \ub2e4\uc2dc \uc810\uc218 \uacbd\ub9e4\ub85c \ub3cc\uc544\uac04\ub2e4.</p>
-      <button class="btn" data-act="returnTicket" data-fan="scalper" style="margin-bottom:10px">\uc554\ud45c\uc0c1, \uacf5\uc2dd \ubc18\ub0a9\ud558\uae30</button>
-      <div style="margin-bottom:10px">
+    <div class="card" style="margin-bottom:22px">
+      <h2 style="font-size:23px;margin-top:0"><span class="n">Step 4</span> \uacf5\uc2dd \ubc18\ub0a9\uacfc \uc7ac\ubc30\uc815</h2>
+      <p style="color:var(--muted);margin:12px 0 22px;font-size:17px">\ub418\ud314\uc9c0 \ubabb\ud55c \uc554\ud45c\uc0c1\uc774 \uc815\uac00 \uadf8\ub300\ub85c \ubc18\ub0a9\ud558\uba74, \uadf8 \uc88c\uc11d\uc740 \ub2e4\uc2dc \uc810\uc218 \uacbd\ub9e4\ub85c \ub3cc\uc544\uac04\ub2e4.</p>
+      <button class="btn" data-act="returnTicket" data-fan="scalper" style="margin-bottom:14px">\uc554\ud45c\uc0c1, \uacf5\uc2dd \ubc18\ub0a9\ud558\uae30</button>
+      <div style="margin-bottom:14px">
         <button class="btn" data-act="openRound2">\ubc18\ub0a9\ubd84 \uc7ac\ubc30\uc815 \ub77c\uc6b4\ub4dc \uc5f4\uae30 (\uc6b0\uc120\uad8c 1)</button>
       </div>
-      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px">
+      <div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:10px">
         <button class="btn" data-act="enter" data-fan="yerin" data-bid="600">\uc608\ub9b0, 600\uc810\uc73c\ub85c \uc751\ubaa8</button>
         <button class="btn" data-act="enter" data-fan="buyerX" data-bid="0">\uad6c\ub9e4\uc790X, \uc751\ubaa8 \uc2dc\ub3c4 (\uc5ec\uad8c \uc5c6\uc74c)</button>
         <button class="btn" data-act="enter" data-fan="scalper" data-bid="150">\uc554\ud45c\uc0c1, 150\uc810 \uc785\ucc30 \uc2dc\ub3c4 (\ubcf4\uc720 0\uc810)</button>
       </div>
-      <button class="btn" data-act="draw2" style="margin-bottom:10px">\ucd94\ucca8 \ud655\uc815\ud558\uae30</button>
+      <button class="btn" data-act="draw2" style="margin-bottom:14px">\ucd94\ucca8 \ud655\uc815\ud558\uae30</button>
       <button class="btn" data-act="claim" data-fan="yerin">\uc608\ub9b0 \ubc1c\uad8c</button>
     </div>
 
-    <div class="card" style="margin-bottom:16px">
-      <h2 style="font-size:19px;margin-top:0"><span class="n">Step 5</span> \uacf5\uc5f0 \ub2f9\uc77c \u2014 \uc785\uc7a5\uacfc \ub178\uc1fc</h2>
-      <p style="color:var(--muted);margin:10px 0 18px;font-size:15px">\uc785\uc7a5\ud574\uc57c\ub9cc \ud32c \uc5ec\uad8c\uc5d0 \ub9ac\uc6cc\ub4dc\uac00 \ud655\uc815\ub41c\ub2e4. \uc9c1\uc811 \uc785\uc7a5\uc740 300\uc810.</p>
-      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px">
+    <div class="card" style="margin-bottom:22px">
+      <h2 style="font-size:23px;margin-top:0"><span class="n">Step 5</span> \uacf5\uc5f0 \ub2f9\uc77c \u2014 \uc785\uc7a5\uacfc \ub178\uc1fc</h2>
+      <p style="color:var(--muted);margin:12px 0 22px;font-size:17px">\uc785\uc7a5\ud574\uc57c\ub9cc \ud32c \uc5ec\uad8c\uc5d0 \ub9ac\uc6cc\ub4dc\uac00 \ud655\uc815\ub41c\ub2e4. \uc9c1\uc811 \uc785\uc7a5\uc740 300\uc810.</p>
+      <div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:10px">
         <button class="btn" data-act="checkIn" data-fan="jimin">\uc9c0\ubbfc \uccb4\ud06c\uc778</button>
         <button class="btn" data-act="checkIn" data-fan="suhyun">\uc218\ud604 \uccb4\ud06c\uc778</button>
         <button class="btn" data-act="checkIn" data-fan="yerin">\uc608\ub9b0 \uccb4\ud06c\uc778</button>
       </div>
-      <button class="btn" data-act="endShow" style="margin-bottom:10px">\uacf5\uc5f0 \uc885\ub8cc \ucc98\ub9ac (\ud558\ub298\uc740 \uc624\uc9c0 \uc54a\uc558\ub2e4)</button>
+      <button class="btn" data-act="endShow" style="margin-bottom:14px">\uacf5\uc5f0 \uc885\ub8cc \ucc98\ub9ac (\ud558\ub298\uc740 \uc624\uc9c0 \uc54a\uc558\ub2e4)</button>
       <button class="btn" data-act="noShow" data-fan="haneul">\ud558\ub298 \ub178\uc1fc \ucc98\ub9ac (\ud658\ubd88 \ubd88\uac00)</button>
     </div>
 
     <div class="card">
-      <h2 style="font-size:19px;margin-top:0"><span class="n">Step 6</span> \uc810\uc218 \uac10\uac00</h2>
-      <p style="color:var(--muted);margin:10px 0 18px;font-size:15px">\ucc38\uc11d \uc810\uc218\ub294 2\ub144\uc5d0 \uac78\uccd0 \uc120\ud615\uc73c\ub85c \uc904\uc5b4\ub4e0\ub2e4. 1\ub144\uc774 \uc9c0\ub09c \uc0c1\ud0dc\ub97c \uadfc\uc0ac\ud574 \ubcf8\ub2e4.</p>
+      <h2 style="font-size:23px;margin-top:0"><span class="n">Step 6</span> \uc810\uc218 \uac10\uac00</h2>
+      <p style="color:var(--muted);margin:12px 0 22px;font-size:17px">\ub9ac\uc6cc\ub4dc \uc810\uc218\ub294 5\ub144\uc5d0 \uac78\uccd0 \uc120\ud615\uc73c\ub85c \uc904\uc5b4\ub4e0\ub2e4. 1\ub144\uc774 \uc9c0\ub09c \uc0c1\ud0dc\ub97c \uadfc\uc0ac\ud574 \ubcf8\ub2e4.</p>
       <button class="btn" data-act="decay">1\ub144 \ud6c4\ub85c \uc774\ub3d9</button>
     </div>
   `;
