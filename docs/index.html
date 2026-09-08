@@ -26,13 +26,13 @@
     font-family: "Pretendard", "Apple SD Gothic Neo", "Malgun Gothic", -apple-system, BlinkMacSystemFont, sans-serif;
     line-height: 1.7;
   }
-  .wrap { max-width: 880px; margin: 0 auto; padding: 64px 24px 96px; }
-  header.hero { text-align: center; margin-bottom: 64px; }
+  .wrap { max-width: 880px; margin: 0 auto; padding: 40px 24px 80px; }
+  header.hero { text-align: center; margin-bottom: 40px; }
   .kicker {
     display: inline-block; font-size: 13px; letter-spacing: 0.08em; color: var(--accent);
     border: 1px solid rgba(125,211,252,0.35); border-radius: 999px; padding: 4px 14px; margin-bottom: 20px;
   }
-  h1 { font-size: 44px; margin: 0 0 14px; letter-spacing: -0.02em; }
+  h1 { font-size: 38px; margin: 0 0 12px; letter-spacing: -0.02em; }
   .sub { color: var(--muted); font-size: 17px; max-width: 640px; margin: 0 auto; }
   .links { margin-top: 28px; display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
   .btn {
@@ -74,7 +74,7 @@
   }
 
   /* 버튼을 누르는 즉시 옆에서 상태가 바뀌는 걸 보게 — 오른쪽 패널을 스크롤에 고정한다 */
-  .demo-layout { display: grid; grid-template-columns: minmax(0, 1fr) 300px; gap: 18px; align-items: start; }
+  .demo-layout { display: grid; grid-template-columns: minmax(0, 1fr) 330px; gap: 18px; align-items: start; }
   .demo-panel { position: sticky; top: 20px; }
   .demo-panel table { font-size: 12.5px; }
   .demo-panel th, .demo-panel td { padding: 7px 8px; }
@@ -99,7 +99,7 @@
   <header class="hero">
     <div class="kicker">SNU · 블록체인 기말 프로젝트</div>
     <h1>디지털 팬 여권</h1>
-    <p class="sub">콘서트 표를 돈이 아니라, <b>살 수 없는 참여 기록</b>으로 나눠 준다.<br/>암표는 사후 단속이 아니라 애초에 성립하지 않는 구조로 막는다.</p>
+    <p class="sub">콘서트 표를 돈이 아니라 <b>살 수 없는 참여 기록</b>으로 나눠, 암표가 성립할 수 없게 만드는 스마트컨트랙트.</p>
     <div class="links">
       <a class="btn primary" href="https://github.com/SNU-Project/fan-passport" target="_blank">GitHub 저장소</a>
       <a class="btn" href="https://github.com/SNU-Project/fan-passport/blob/main/docs/기말프로젝트_제안서.docx" target="_blank">제안서 (.docx)</a>
@@ -108,61 +108,13 @@
   </header>
 
   <section>
-    <h2><span class="n">01</span> 문제</h2>
-    <div class="card">
-      <p style="margin-top:0">공연 분야 암표 신고는 2020년 359건에서 2022년 4,224건으로 10배 넘게 늘었지만, 실제로 유효신고로 인정되어 발권 취소 같은 조치까지 이어진 비율은 <b style="color:var(--bad)">약 5.6%</b>에 그친다. 매크로 사용 여부를 기술적으로 입증하기 어렵고, '부정한 방법'이라는 법적 정의 자체가 모호하기 때문이다. 지금의 대응은 전부 사건이 벌어진 뒤 신고를 받는 방식이고, 그 방식은 숫자로 보면 작동하지 않고 있다.</p>
-      <p style="margin-bottom:0;color:var(--muted)">동시에 팬의 관람 이력은 예매처마다 흩어져 있고, 그 플랫폼을 떠나는 순간 사라진다. 5년째 따라다닌 팬과 오늘 처음 온 관객이 예매창 앞에서 구별되지 않는 이유다.</p>
-    </div>
-  </section>
-
-  <section>
-    <h2><span class="n">02</span> 설계 — 다섯 가지 장치</h2>
-    <div class="card">
-      <div class="step">
-        <div class="num">1</div>
-        <div class="body"><b>팬 여권 (소울바운드)</b> — 실제 입장 시점에만 기록이 남고, 이 기록은 어떤 방법으로도 팔거나 넘길 수 없다. <span>암표상이 이력을 흉내낼 방법이 없다.</span></div>
-      </div>
-      <div class="step">
-        <div class="num">2</div>
-        <div class="body"><b>전송 제한 티켓</b> — 공식 반납 창구 외에는 어떤 전송도 실패한다. <span>웃돈을 현금으로 주고받아도 소유권 자체가 넘어가지 않는다.</span></div>
-      </div>
-      <div class="step">
-        <div class="num">3</div>
-        <div class="body"><b>이중 트랙 배분</b> — 좌석을 팬 점수 올페이 경매(우선권)와 무작위 추첨(일반)으로 나눈다. <span>고인물 독점과 자본에 의한 배분을 동시에 막는다.</span></div>
-      </div>
-      <div class="step">
-        <div class="num">4</div>
-        <div class="body"><b>노쇼 보증금</b> — 반납하면 페널티 없이 전액 환급, 무단 노쇼만 몰수된다. <span>빈 좌석 대신 반납을 유도한다.</span></div>
-      </div>
-      <div class="step">
-        <div class="num">5</div>
-        <div class="body"><b>점수 감가</b> — 참석 점수는 2년에 걸쳐 선형으로 줄어든다. <span>신규 팬이 들어올 여지를 남긴다.</span></div>
-      </div>
-    </div>
-  </section>
-
-  <section>
-    <h2><span class="n">03</span> 왜 블록체인인가</h2>
-    <div class="card">
-      <table>
-        <tr><th>필요한 것</th><th>중앙 DB</th><th>블록체인</th></tr>
-        <tr><td>경쟁 예매처 간 이력 통합</td><td class="bad">불가능 — 서로 신뢰하지 않음</td><td class="good">공동 원장으로 가능</td></tr>
-        <tr><td>발행 주체도 못 고치는 기록</td><td class="bad">관리자는 항상 수정 권한 보유</td><td class="good">위변조 불가능</td></tr>
-        <tr><td>배분 결과의 검증</td><td class="bad">'왜 됐는지' 확인 불가</td><td class="good">누구나 재계산 가능</td></tr>
-        <tr><td>규칙의 자동 집행</td><td class="bad">사람이 심사</td><td class="good">코드가 즉시 집행</td></tr>
-      </table>
-    </div>
-  </section>
-
-  <section>
-    <h2><span class="n">04</span> 직접 눌러서 실행해 보기</h2>
+    <h2>직접 눌러서 실행해 보기</h2>
     <p style="color:var(--muted);margin-top:-8px">
-      아래는 읽는 로그가 아니라 <b style="color:var(--text)">지금 이 페이지에서 실제로 도는 시뮬레이터</b>다.
       버튼을 누르면 저장소의
       <a href="https://github.com/SNU-Project/fan-passport/blob/main/contracts/FanPassport.sol">FanPassport.sol</a> ·
       <a href="https://github.com/SNU-Project/fan-passport/blob/main/contracts/TicketBox.sol">TicketBox.sol</a>
-      과 <b style="color:var(--text)">완전히 동일한 조건문(require/revert)을 그대로 JS로 옮긴 로직</b>이 그 자리에서 실행되고, 아래 상태표와 로그가 즉시 바뀐다.
-      (진짜 이더리움 노드에 배포된 것은 아니다 — 지갑도 가스비도 필요 없는 브라우저 시뮬레이션이다. 실제 EVM 위에서 도는 모습은 5번 항목의 <code>npm run demo</code>로 확인할 수 있다.)
+      과 <b style="color:var(--text)">동일한 조건문(require/revert)</b>이 그 자리에서 실행되고, 오른쪽 상태표와 로그가 즉시 바뀐다.
+      설치도 지갑도 필요 없다. (브라우저 시뮬레이션이며, 진짜 EVM 위에서 도는 모습은 아래에서 확인할 수 있다.)
     </p>
 
     <div class="demo-layout">
@@ -171,7 +123,7 @@
       <aside class="demo-panel">
         <div class="card" style="margin-bottom:14px">
           <table id="stateTable">
-            <tr><th>팬</th><th>여권</th><th>참석</th><th>점수</th><th>보유 티켓</th></tr>
+            <tr><th>팬</th><th>참석</th><th>점수</th><th>티켓</th></tr>
           </table>
         </div>
 
@@ -194,7 +146,7 @@
   </section>
 
   <section>
-    <h2><span class="n">05</span> 실제 EVM 위에서 돌려 보기</h2>
+    <h2>진짜 EVM 위에서 돌아간다는 증거</h2>
     <div class="card" style="margin-bottom:16px">
       <p style="margin-top:0">위 시뮬레이터와 같은 시나리오를, 진짜 Solidity 컨트랙트를 컴파일해 인메모리 이더리움에 배포한 채로 그대로 재현한 것이 저장소의 <code>npm run demo</code>다. 지갑도 테스트넷도 필요 없다.</p>
       <pre class="term" style="max-height:none"><span class="dim">$</span> git clone https://github.com/SNU-Project/fan-passport.git
@@ -358,11 +310,10 @@
 
   function render() {
     const st = document.getElementById("stateTable");
-    st.innerHTML = "<tr><th>\ud32c</th><th>\uc5ec\uad8c</th><th>\ucc38\uc11d</th><th>\uc810\uc218</th><th>\ubcf4\uc720 \ud2f0\ucf13</th></tr>" +
+    st.innerHTML = "<tr><th>\ud32c</th><th>\ucc38\uc11d</th><th>\uc810\uc218</th><th>\ud2f0\ucf13</th></tr>" +
       Object.entries(state.fans).map(([k, f]) => `
         <tr>
-          <td>${f.name} <span class="pill">${f.tag}</span></td>
-          <td class="${f.hasPassport ? "good" : "bad"}">${f.hasPassport ? "\ubc1c\uae09\ub428" : "\uc5c6\uc74c"}</td>
+          <td class="${f.hasPassport ? "" : "bad"}">${f.name} <span class="pill">${f.tag}</span></td>
           <td>${f.attendance}\ud68c</td>
           <td>${avail(k)}\uc810</td>
           <td>${f.ticket ? "#" + f.ticket : "-"}</td>
