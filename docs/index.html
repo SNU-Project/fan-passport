@@ -115,7 +115,7 @@
 
   <section>
     <p class="note">저장소의 <a href="https://github.com/SNU-Project/fan-passport/blob/main/contracts/FanPassport.sol">FanPassport.sol</a> ·
-      <a href="https://github.com/SNU-Project/fan-passport/blob/main/contracts/TicketBox.sol">TicketBox.sol</a>과 같은 규칙이 브라우저에서 그대로 실행됩니다. 설치·지갑 불필요.</p>
+      <a href="https://github.com/SNU-Project/fan-passport/blob/main/contracts/TicketBox.sol">TicketBox.sol</a> · <a href="https://github.com/SNU-Project/fan-passport/blob/main/contracts/OfficialTransfer.sol">OfficialTransfer.sol</a>과 같은 규칙이 브라우저에서 그대로 실행됩니다. 설치·지갑 불필요.</p>
 
     <div class="demo-layout">
       <div id="steps"></div>
@@ -161,7 +161,7 @@
 (function () {
   "use strict";
 
-  /* \u2500\u2500 \uc0c1\ud0dc: FanPassport.sol / TicketBox.sol\uc758 \uaddc\uce59\uc744 \uadf8\ub300\ub85c \uc62e\uae34 JS \ubaa8\ub378 \u2500\u2500 */
+  /* \u2500\u2500 \uc0c1\ud0dc: FanPassport.sol / TicketBox.sol / OfficialTransfer.sol\uc758 \uaddc\uce59\uc744 \uadf8\ub300\ub85c \uc62e\uae34 JS \ubaa8\ub378 \u2500\u2500 */
   const FACE = 0.1;                       // 보증금 없음 — 표값 자체가 담보
   const REWARD_DIRECT = 300, REWARD_TRANSFEREE = 200, REWARD_ORIGINAL = 100;
   const state = {
@@ -171,9 +171,11 @@
       haneul:  { name: "\ud558\ub298",   tag: "\uc2e0\uaddc",     hasPassport: true,  attendance: 0, points: 0,   spent: 0, ticket: null },
       yerin:   { name: "\uc608\ub9b0",   tag: "3\ud68c \ucc38\uc11d", hasPassport: true,  attendance: 3, points: 900, spent: 0, ticket: null },
       scalper: { name: "\uc554\ud45c\uc0c1", tag: "0\ud68c",      hasPassport: true,  attendance: 0, points: 0,   spent: 0, ticket: null },
+      minseo:  { name: "\ubbfc\uc11c",   tag: "1\ud68c \ucc38\uc11d", hasPassport: true,  attendance: 1, points: 300, spent: 0, ticket: null },
       buyerX:  { name: "\uad6c\ub9e4\uc790X", tag: "\uc5ec\uad8c \uc5c6\uc74c", hasPassport: false, attendance: 0, points: 0,   spent: 0, ticket: null },
     },
-    tickets: [1, 2, 3, 4].map((id) => ({ id, state: "None", owner: null })),
+    tickets: [1, 2, 3, 4].map((id) => ({ id, state: "None", owner: null, original: null })),
+    offer: null,
     returnPool: [],
     round: 0,
     prioritySeats: 0,
@@ -256,7 +258,7 @@
     if (state.returnPool.length) id = state.returnPool.pop();
     else id = state.tickets.find((t) => t.state === "None").id;
     const t = state.tickets.find((x) => x.id === id);
-    t.state = "Held"; t.owner = k;
+    t.state = "Held"; t.owner = k; t.original = k;
     state.fans[k].ticket = id;
   }
 
@@ -271,6 +273,29 @@
     state.fans[k].ticket = null;
   }
 
+  /* OfficialTransfer.sol — 정가 이하, 지정 수령인, 금액 일치일 때만 이전 */
+  function offerTransfer(from, to, price) {
+    const id = state.fans[from].ticket;
+    req(id != null, "NotOwner");
+    const t = state.tickets.find((x) => x.id === id);
+    req(t.state === "Held", "BadState");
+    req(price <= FACE, "PriceAboveFaceValue");
+    state.offer = { id, from, to, price };
+  }
+
+  function acceptTransfer(k, pay) {
+    req(state.offer != null, "NoOffer");
+    req(state.offer.to === k, "NotDesignatedBuyer");
+    req(pay === state.offer.price, "WrongPayment");
+    const f = state.fans[k];
+    req(f.hasPassport, "NoPassport");
+    req(!f.ticket, "AlreadyHasTicket");
+    const t = state.tickets.find((x) => x.id === state.offer.id);
+    state.fans[state.offer.from].ticket = null;
+    t.owner = k; f.ticket = t.id;
+    state.offer = null;
+  }
+
   function checkIn(k) {
     const id = state.fans[k].ticket;
     req(id != null, "BadState");
@@ -278,7 +303,12 @@
     req(t.state === "Held", "BadState");
     t.state = "Used";
     state.fans[k].attendance += 1;
-    state.fans[k].points += REWARD_DIRECT;
+    if (t.original === k) {
+      state.fans[k].points += REWARD_DIRECT;
+    } else {
+      state.fans[k].points += REWARD_TRANSFEREE;
+      state.fans[t.original].points += REWARD_ORIGINAL;
+    }
   }
 
   function noShow(k) {
@@ -350,7 +380,21 @@
     </div>
 
     <div class="card" style="margin-bottom:22px">
-      <h2 style="font-size:23px;margin-top:0"><span class="n">Step 4</span> \uacf5\uc2dd \ubc18\ub0a9\uacfc \uc7ac\ubc30\uc815</h2>
+      <h2 style="font-size:23px;margin-top:0"><span class="n">Step 4</span> \uacf5\uc2dd \uc591\ub3c4 \u2014 \uc608\uc678\ub97c \uaddc\uce59 \uc548\uc5d0\uc11c\ub9cc \uc5f4\uc5b4 \uc900\ub2e4</h2>
+      <p style="color:var(--muted);margin:12px 0 22px;font-size:17px">\uc0ac\uc815\uc774 \uc0dd\uae34 \uc218\ud604\uc774 \ud45c\ub97c \ub118\uae30\ub824 \ud55c\ub2e4. \ub118\uae30\ub294 \uac83 \uc790\uccb4\ub294 \ub9c9\uc9c0 \uc54a\ub418, \uc6c3\ub3c8\uc774 \ubd99\uc744 \uc218 \uc788\ub294 \uacbd\ub85c\ub9cc \uacc4\uc57d\uc774 \ub9c9\ub294\ub2e4.</p>
+      <div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:10px">
+        <button class="btn" data-act="offerHigh">\uc218\ud604 \u2192 \uad6c\ub9e4\uc790X, \uc815\uac00\uc758 5\ubc30\ub85c \uc591\ub3c4 \ub4f1\ub85d</button>
+        <button class="btn" data-act="offerFace">\uc218\ud604 \u2192 \ubbfc\uc11c, \uc815\uac00\ub85c \uc591\ub3c4 \ub4f1\ub85d</button>
+      </div>
+      <div style="display:flex;gap:12px;flex-wrap:wrap">
+        <button class="btn" data-act="acceptWrongBuyer">\uad6c\ub9e4\uc790X\uac00 \ub300\uc2e0 \uc218\ub839 \uc2dc\ub3c4</button>
+        <button class="btn" data-act="acceptHalf">\ubbfc\uc11c\uac00 \uc808\ubc18\ub9cc \uc9c0\ubd88</button>
+        <button class="btn" data-act="acceptOk">\ubbfc\uc11c\uac00 \uc815\uac00 \uc9c0\ubd88\ud558\uace0 \uc218\ub839</button>
+      </div>
+    </div>
+
+    <div class="card" style="margin-bottom:22px">
+      <h2 style="font-size:23px;margin-top:0"><span class="n">Step 5</span> \uacf5\uc2dd \ubc18\ub0a9\uacfc \uc7ac\ubc30\uc815</h2>
       <p style="color:var(--muted);margin:12px 0 22px;font-size:17px">\ub418\ud314\uc9c0 \ubabb\ud55c \uc554\ud45c\uc0c1\uc774 \uc815\uac00 \uadf8\ub300\ub85c \ubc18\ub0a9\ud558\uba74, \uadf8 \uc88c\uc11d\uc740 \ub2e4\uc2dc \uc810\uc218 \uacbd\ub9e4\ub85c \ub3cc\uc544\uac04\ub2e4.</p>
       <button class="btn" data-act="returnTicket" data-fan="scalper" style="margin-bottom:14px">\uc554\ud45c\uc0c1, \uacf5\uc2dd \ubc18\ub0a9\ud558\uae30</button>
       <div style="margin-bottom:14px">
@@ -366,11 +410,11 @@
     </div>
 
     <div class="card" style="margin-bottom:22px">
-      <h2 style="font-size:23px;margin-top:0"><span class="n">Step 5</span> \uacf5\uc5f0 \ub2f9\uc77c \u2014 \uc785\uc7a5\uacfc \ub178\uc1fc</h2>
-      <p style="color:var(--muted);margin:12px 0 22px;font-size:17px">\uc785\uc7a5\ud574\uc57c\ub9cc \ud32c \uc5ec\uad8c\uc5d0 \ub9ac\uc6cc\ub4dc\uac00 \ud655\uc815\ub41c\ub2e4. \uc9c1\uc811 \uc785\uc7a5\uc740 300\uc810.</p>
+      <h2 style="font-size:23px;margin-top:0"><span class="n">Step 6</span> \uacf5\uc5f0 \ub2f9\uc77c \u2014 \uc785\uc7a5\uacfc \ub178\uc1fc</h2>
+      <p style="color:var(--muted);margin:12px 0 22px;font-size:17px">\uc785\uc7a5\ud574\uc57c\ub9cc \ud32c \uc5ec\uad8c\uc5d0 \ub9ac\uc6cc\ub4dc\uac00 \ud655\uc815\ub41c\ub2e4. \uc9c1\uc811 \uc785\uc7a5\uc740 300\uc810, \uacf5\uc2dd \uc591\ub3c4\ub97c \uac70\uce5c \ud45c\ub294 \uc591\uc218\uc778 200\uc810 \u00b7 \uc6d0\uad6c\ub9e4\uc790 100\uc810\uc73c\ub85c \ub098\ub25c\ub2e4.</p>
       <div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:10px">
         <button class="btn" data-act="checkIn" data-fan="jimin">\uc9c0\ubbfc \uccb4\ud06c\uc778</button>
-        <button class="btn" data-act="checkIn" data-fan="suhyun">\uc218\ud604 \uccb4\ud06c\uc778</button>
+        <button class="btn" data-act="checkIn" data-fan="minseo">\ubbfc\uc11c \uccb4\ud06c\uc778 (\uc591\uc218\uc778 200\uc810 \u00b7 \uc218\ud604 100\uc810)</button>
         <button class="btn" data-act="checkIn" data-fan="yerin">\uc608\ub9b0 \uccb4\ud06c\uc778</button>
       </div>
       <button class="btn" data-act="endShow" style="margin-bottom:14px">\uacf5\uc5f0 \uc885\ub8cc \ucc98\ub9ac (\ud558\ub298\uc740 \uc624\uc9c0 \uc54a\uc558\ub2e4)</button>
@@ -378,7 +422,7 @@
     </div>
 
     <div class="card">
-      <h2 style="font-size:23px;margin-top:0"><span class="n">Step 6</span> \uc810\uc218 \uac10\uac00</h2>
+      <h2 style="font-size:23px;margin-top:0"><span class="n">Step 7</span> \uc810\uc218 \uac10\uac00</h2>
       <p style="color:var(--muted);margin:12px 0 22px;font-size:17px">\ub9ac\uc6cc\ub4dc \uc810\uc218\ub294 5\ub144\uc5d0 \uac78\uccd0 \uc120\ud615\uc73c\ub85c \uc904\uc5b4\ub4e0\ub2e4. 1\ub144\uc774 \uc9c0\ub09c \uc0c1\ud0dc\ub97c \uadfc\uc0ac\ud574 \ubcf8\ub2e4.</p>
       <button class="btn" data-act="decay">1\ub144 \ud6c4\ub85c \uc774\ub3d9</button>
     </div>
@@ -395,10 +439,15 @@
     else if (act === "enter") run(`${NAME(fan)}, ${bid}\uc810\uc73c\ub85c \uc751\ubaa8`, () => enterDraw(fan, bid));
     else if (act === "draw1" || act === "draw2") run("\ucd94\ucca8 \ud655\uc815", () => draw());
     else if (act === "claim") run(`${NAME(fan)} \ubc1c\uad8c (\uc815\uac00 ${FACE} \uc9c0\ubd88)`, () => claim(fan));
+    else if (act === "offerHigh") run("\uc218\ud604 \u2192 \uad6c\ub9e4\uc790X, \uc815\uac00\uc758 5\ubc30\ub85c \uc591\ub3c4 \ub4f1\ub85d", () => offerTransfer("suhyun", "buyerX", FACE * 5));
+    else if (act === "offerFace") run("\uc218\ud604 \u2192 \ubbfc\uc11c, \uc815\uac00\ub85c \uc591\ub3c4 \ub4f1\ub85d", () => offerTransfer("suhyun", "minseo", FACE));
+    else if (act === "acceptWrongBuyer") run("\uad6c\ub9e4\uc790X\uac00 \ub300\uc2e0 \uc218\ub839 \uc2dc\ub3c4", () => acceptTransfer("buyerX", FACE));
+    else if (act === "acceptHalf") run("\ubbfc\uc11c\uac00 \uc815\uac00\uc758 \uc808\ubc18\ub9cc \uc9c0\ubd88", () => acceptTransfer("minseo", FACE / 2));
+    else if (act === "acceptOk") run("\ubbfc\uc11c\uac00 \uc815\uac00 \uc9c0\ubd88\ud558\uace0 \uc218\ub839", () => acceptTransfer("minseo", FACE));
     else if (act === "sellTicket") run("\uc554\ud45c\uc0c1 \u2192 \uad6c\ub9e4\uc790X \ud2f0\ucf13 \uc804\uc1a1 \uc2dc\ub3c4", () => tryTransferTicket("scalper"));
     else if (act === "returnTicket") run(`${NAME(fan)} \uacf5\uc2dd \ubc18\ub0a9 (\uc815\uac00 \uc804\uc561 \ud658\ubd88)`, () => returnTicket(fan));
     else if (act === "openRound2") run("\ubc18\ub0a9\ubd84 \uc7ac\ubc30\uc815 \ub77c\uc6b4\ub4dc \uc5f4\ub9bc (\uc6b0\uc120\uad8c 1)", () => openRound(1, 0));
-    else if (act === "checkIn") run(`${NAME(fan)} \uccb4\ud06c\uc778 (\uc5ec\uad8c\uc5d0 300\uc810 \ud655\uc815)`, () => checkIn(fan));
+    else if (act === "checkIn") run(`${NAME(fan)} \uccb4\ud06c\uc778`, () => checkIn(fan));
     else if (act === "endShow") run("\uacf5\uc5f0 \uc885\ub8cc \ucc98\ub9ac", () => { state.showEnded = true; });
     else if (act === "noShow") run(`${NAME(fan)} \ub178\uc1fc \ucc98\ub9ac (\ud45c\uac12 \ud658\ubd88 \ubd88\uac00)`, () => noShow(fan));
     else if (act === "decay") run("1\ub144 \uacbd\uacfc \u2014 \uc810\uc218 \uac10\uac00 \uc801\uc6a9", () => { state.decay = 0.8; });

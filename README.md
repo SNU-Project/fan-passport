@@ -8,4 +8,4 @@
 npm install && npm run demo   # 실제 EVM에서 같은 시나리오 실행
 ```
 
-[제안서](docs/기말프로젝트_제안서.pdf) · [contracts/](contracts)
+[contracts/](contracts)
