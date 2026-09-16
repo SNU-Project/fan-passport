@@ -17,7 +17,7 @@ import "./TicketBox.sol";
  *
  *  다만 이 계약이 통제할 수 있는 것은 온체인 결제액뿐이다. 계좌이체 같은 장외 웃돈까지
  *  막지는 못하며, 그 부분은 양수인 본인확인과 리워드 차등(TicketBox의 REWARD_ORIGINAL이
- *  직접 입장의 3분의 1)으로 유인을 줄이는 데 그친다. 제안서 5장에 한계로 명시했다.
+ *  직접 입장의 3분의 1)으로 유인을 줄이는 데 그친다. 제안서 제4장 제2절에 한계로 명시했다.
  */
 contract OfficialTransfer {
     TicketBox public immutable box;
